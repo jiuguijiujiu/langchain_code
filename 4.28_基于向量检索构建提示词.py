@@ -2,8 +2,6 @@
 提示词：用户的提问 + 向量库中检索到的参考资料
 """
 from langchain_community.chat_models import ChatTongyi
-from langchain_core.documents import Document
-from langchain_core.runnables import RunnablePassthrough
 from langchain_core.vectorstores import InMemoryVectorStore
 from langchain_community.embeddings import DashScopeEmbeddings
 from langchain_core.prompts import ChatPromptTemplate
@@ -33,35 +31,14 @@ vector_store.add_texts(
 
 input_text = "怎么减肥？"
 
-# langchain中向量存储对象，有一个方法：as_retriever，可以返回一个Runnable接口的子类实例对象
-retriever = vector_store.as_retriever(search_kwargs={"k": 2})
+# 检索向量库
+result = vector_store.similarity_search(input_text, 2)
+reference_text = "["
+for doc in result:
+    reference_text += doc.page_content
+reference_text += "]"
 
+chain = prompt | print_prompt | model | StrOutputParser()
 
-def format_func(docs: list[Document]):
-    if not docs:
-        return "无相关参考资料"
-
-    formatted_str = "["
-    for doc in docs:
-        formatted_str += doc.page_content
-    formatted_str += "]"
-
-    return formatted_str
-
-
-# chain
-chain = (
-        {"input": RunnablePassthrough(),
-         "context": retriever | format_func} | prompt | print_prompt | model | StrOutputParser()
-)
-
-res = chain.invoke(input_text)
+res = chain.invoke({"input": input_text, "context": reference_text})
 print(res)
-"""
-retriever:
-    - 输入：用户的提问       str
-    - 输出：向量库的检索结果  list[Document]
-prompt:
-    - 输入：用户的提问 + 向量库的检索结果   dict
-    - 输出：完整的提示词                 PromptValue
-"""
