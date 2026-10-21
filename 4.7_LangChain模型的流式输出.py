@@ -1,16 +1,15 @@
-# 1. 导包
+# 0. 导包
 # from langchain_community.llms.tongyi import Tongyi
 from langchain_ollama import OllamaLLM
 
-# 2. 调用模型
+# 1. 创建模型对象
 # 不用qwen3-max，因为qwen3-max是聊天模型，qwen-max是大语言模型
 # model = Tongyi(model = 'qwen-max')
-model = OllamaLLM(model = 'qwen3.5:9b')
+model = OllamaLLM(model = 'qwen3:4b')
 
-# 3. 询问问题
-# 调用invoke向模型提问
-# res = model.invoke(input = '你是谁？')
+# 2. 通过stream方法去调用模型
 res = model.stream(input = '你是谁？')
 
+# 3. 输出模型回复结果
 for chunk in res:
     print(chunk, end = "", flush = True)

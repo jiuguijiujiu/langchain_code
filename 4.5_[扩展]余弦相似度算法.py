@@ -1,5 +1,3 @@
-import numpy as np
-
 """
 计算两个向量的余弦相似度（衡量方向相似性，剔除长度影响）
 
@@ -21,19 +19,22 @@ C: [0.7, 0.5]
 D: [-0.6, -0.5]
 """
 
+# 0. 导包
+import numpy as np
 
+# 1. 计算两向量点积
 def get_dot(vec_a, vec_b):
     """计算2个向量的点积，2个向量同维度数字乘积之和"""
     if len(vec_a) != len(vec_b):
-        raise ValueError("2个向量必须维度数量相同")
+        raise ValueError("2个向量维度必须相同")
 
     dot_sum = 0
-    for a, b in zip(vec_a, vec_b):
+    for a, b in zip(vec_a, vec_b):      # zip()：把多个列表（或可迭代对象）里“位置对应”的元素，一一配对成元组
         dot_sum += a * b
 
     return dot_sum
 
-
+# 2. 计算向量模长
 def get_norm(vec):
     """计算单个向量的模长：对向量的每个数字求平方在求和在开根号"""
     sum_square = 0
@@ -43,12 +44,11 @@ def get_norm(vec):
     # numpy sqrt函数完成开根号
     return np.sqrt(sum_square)
 
-
+# 3. 余弦相似度算法计算公式
 def cosine_similarity(vec_a, vec_b):
     """余弦相似度：2个向量的点积 除以 2个向量模长的乘积"""
 
-    result = get_dot(vec_a, vec_b) / (get_norm(vec_a) * get_norm(vec_b))
-    return result
+    return get_dot(vec_a, vec_b) / (get_norm(vec_a) * get_norm(vec_b))
 
 
 if __name__ == '__main__':
@@ -57,6 +57,7 @@ if __name__ == '__main__':
     vec_c = [0.7, 0.5]
     vec_d = [-0.6, -0.5]
 
+    # 结果越大越相似
     print("ab:", cosine_similarity(vec_a, vec_b))
     print("ac:", cosine_similarity(vec_a, vec_c))
     print("ad:", cosine_similarity(vec_a, vec_d))

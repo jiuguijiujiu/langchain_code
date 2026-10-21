@@ -1,9 +1,27 @@
+"""
+    {"role": "system",      "content": f"你帮我完成文本匹配，我给你2个句子，被[]包围，你判断它们是否匹配，回答是或不是，请参考如下示例："},
+
+    {"role": "user",        "content": "句子1：[公司ABC发布了季度财报，显示盈利增长。]句子2：[财报披露，公司ABC利润上升。]"},
+    {"role": "assistant",   "content": "是"},
+    {"role": "user",        "content": "句子1：[公司ITCAST发布了年度财报，显示盈利大幅度增长。]句子2：[财报披露，公司ITCAST更赚钱了。]"},
+    {"role": "assistant",   "content": "是"},
+    {"role": "user",        "content": "句子1：[黄金价格下跌，投资者抛售。]句子2：[外汇市场交易额创下新高。]"},
+    {"role": "assistant",   "content": "不是"},
+    {"role": "user",        "content": "句子1：[央行降息，刺激经济增长。]句子2：[新能源技术的创新。]"},
+    {"role": "assistant",   "content": "不是"},
+
+    {"role": "user",        "content": f"按照上述示例，回答这2个句子的情况。句子1: [...]，句子2: [...]"}
+"""
+
+# 0. 导包
 from openai import OpenAI
 
+# 1. 创教openai对象
 client = OpenAI(
     base_url="https://ws-7xn36acu51vwzxvg.cn-beijing.maas.aliyuncs.com/compatible-mode/v1"
 )
 
+# 2. 准备提示词数据
 examples_data = {
     "是": [
         ("公司ABC发布了季度财报，显示盈利增长。", "财报披露，公司ABC利润上升。"),
@@ -21,23 +39,9 @@ questions = [
     ("股票市场今日大涨，投资者乐观。", "持续上涨的市场让投资者感到满意。")
 ]
 
-"""
-    {"role": "system",      "content": f"你帮我完成文本匹配，我给你2个句子，被[]包围，你判断它们是否匹配，回答是或不是，请参考如下示例："},
-
-    {"role": "user",        "content": "句子1：[公司ABC发布了季度财报，显示盈利增长。]句子2：[财报披露，公司ABC利润上升。]"},
-    {"role": "assistant",   "content": "是"},
-    {"role": "user",        "content": "句子1：[公司ITCAST发布了年度财报，显示盈利大幅度增长。]句子2：[财报披露，公司ITCAST更赚钱了。]"},
-    {"role": "assistant",   "content": "是"},
-    {"role": "user",        "content": "句子1：[黄金价格下跌，投资者抛售。]句子2：[外汇市场交易额创下新高。]"},
-    {"role": "assistant",   "content": "不是"},
-    {"role": "user",        "content": "句子1：[央行降息，刺激经济增长。]句子2：[新能源技术的创新。]"},
-    {"role": "assistant",   "content": "不是"}, 
-
-    {"role": "user",        "content": f"按照上述示例，回答这2个句子的情况。句子1: [...]，句子2: [...]"}
-"""
-
+# 3. 设计提示词
 messages = [
-    {"role": "system",      "content": f"你帮我完成文本匹配，我给你2个句子，被[]包围，你判断它们是否匹配，回答是或不是，请参考如下示例："}
+    {"role": "system", "content": f"你帮我完成文本匹配，我给你2个句子，被[]包围，你判断它们是否匹配，回答是或不是，请参考如下示例："}
 ]
 
 for key, value in examples_data.items():
@@ -49,8 +53,10 @@ for key, value in examples_data.items():
 #     print(x)
 
 for q in questions:
+    # 4. 调用模型
     response = client.chat.completions.create(
         model = "qwen3.7-flash",
         messages = messages + [{"role": "user", "content": f"按照上述示例，回答这2个句子的情况。句子1: [{q[0]}]，句子2: [{q[1]}]"}]
     )
+    # 5. 输出模型回复结果
     print(response.choices[0].message.content)

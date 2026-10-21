@@ -1,19 +1,25 @@
+# 0. 导包
 from openai import OpenAI
-import os
 
+# 1. 创建openai对象
 client = OpenAI(
-    # 如果没有配置环境变量，请用阿里云百炼API Key替换：api_key="sk-xxx"
-    api_key=os.getenv("DASHSCOPE_API_KEY"),
+    # 使用的是本地模型，所以不需要填写api_key="sk-xxx"
+    # api_key="sk-xxx",
     base_url="http://localhost:11434/v1",
 )
 
+# 2. 设置提示词
 messages = [{"role": "user", "content": "你是谁？"}]
+
+# 3. 调用模型
 completion = client.chat.completions.create(            # type: ignore
-    model="qwen3.5:9b",  # 您可以按需更换为其它深度思考模型
+    model="qwen3:4b",         # 您可以按需更换为其它深度思考模型
     messages=messages,
     extra_body={"enable_thinking": True},
     stream=True
 )
+
+# 4. 输出回复结果
 is_answering = False  # 是否进入回复阶段
 print("\n" + "=" * 20 + "思考过程" + "=" * 20)
 for chunk in completion:

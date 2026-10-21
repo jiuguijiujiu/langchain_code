@@ -1,32 +1,43 @@
-from langchain_core.vectorstores import InMemoryVectorStore
-from langchain_community.embeddings import DashScopeEmbeddings
+# 0. 导包
 from langchain_community.document_loaders import CSVLoader
+from langchain_community.embeddings import DashScopeEmbeddings
+from langchain_core.vectorstores import InMemoryVectorStore
 
+# 1. 加载文件
+# 1.1 创建CSV加载器对象
+loader = CSVLoader(
+    file_path="./数据/info.csv",
+    csv_args={
+        'delimiter' : ','               # 分隔符
+    },
+    encoding="utf-8",
+    source_column="source",             # 指定本条数据的来源，设置元数据（metadata）
+)
+
+# 1.2 使用load方法调用CSV加载器
+documents = loader.load()
+
+# 2. 存储向量数据
+# 2.1 创建短期存储对象
 vector_store = InMemoryVectorStore(
     embedding=DashScopeEmbeddings()
 )
 
-loader = CSVLoader(
-    file_path="./data/info.csv",
-    encoding="utf-8",
-    source_column="source",  # 指定本条数据的来源是哪里
-)
-
-documents = loader.load()
-# id1 id2 id3 id4 ...
-# 向量存储的 新增、删除、检索
+# 2.2 向量存储的 新增、删除、检索
+# 新增
 vector_store.add_documents(
-    documents=documents,  # 被添加的文档，类型：list[Document]
-    ids=["id" + str(i) for i in range(1, len(documents) + 1)]  # 给添加的文档提供id（字符串）  list[str]
+    documents=documents,                                        # 被添加的文档，类型：list[Document]
+    ids=["id" + str(i) for i in range(1, len(documents) + 1)]   # 给添加的文档提供id，类型：list[str]：[id1, id2, id3, id4, ...]
 )
 
-# 删除  传入[id, id...]
-vector_store.delete(["id1", "id2"])
+# 删除，传入[id, id...]
+vector_store.delete(
+    ids=["id1", "id3"]
+)
 
-# 检索 返回类型list[Document]
+# 检索，返回类型list[Document]
 result = vector_store.similarity_search(
-    "瑞达法",
-    3  # 检索的结果要几个
+    query="传智教育",
+    k=2                         # 检索的结果要几个
 )
-
 print(result)
