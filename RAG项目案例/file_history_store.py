@@ -29,6 +29,7 @@ class FileChatMessageHistory(BaseChatMessageHistory):
 
     # 2.1 存储历史信息，模型回答后，自动调用
     def add_messages(self, messages: Sequence[BaseMessage]) -> None:
+        # 因为 @property 返回的是 Sequence[BaseMessage] 类型，不支持 extend 修改操作，所以转为 list
         # Sequence序列 类似list、tuple
         all_messages = list(self.messages)          # 已有的历史信息
         all_messages.extend(messages)               # 新传入的历史信息和已有的历史信息融合成一个list
